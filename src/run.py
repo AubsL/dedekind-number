@@ -77,14 +77,14 @@ def main(args):
     
     infile = open("expWorlds_colors.asp", "r")
     if args.showlat:
-        fAll = open("world_all.dot", "w")
+        fAll = open("world_all.gv", "w")
         fAll.write('digraph{\nrankdir=BT\nnode[shape=circle,style=filled,label=""]\nedge[dir=none]\n')
     
     i = 0
     rcnt = []
     for line in infile:
         if args.showlat:
-            outfile = open("world_"+str(i)+".dot", "w")
+            outfile = open("world_"+str(i)+".gv", "w")
             outfile.write('digraph{\nrankdir=BT\nnode[shape=circle,style=filled,label=""]\nedge[dir=none]\n')
         preds = line[1:-2].split(", ")
         if len(rcnt) == 0:
@@ -100,7 +100,7 @@ def main(args):
         if args.showlat:
             outfile.write(edges + "}")
             outfile.close()
-            call("dot -Tpng " + "world_"+str(i)+".dot" + " -o " + "world_"+str(i)+".png", shell=True)
+            call("dot -Tpdf " + "world_"+str(i)+".gv" + " -o " + "world_"+str(i)+".pdf", shell=True)
         i = i + 1
     
     if args.showlat:
@@ -114,7 +114,7 @@ def main(args):
                 fAll.write(str(e) + "[label=\"green "+ "%.2f"%(100-ratio) +"%\",color=green]\n")
         fAll.write(edges + "}")
         fAll.close()
-        call("dot -Tpng " + "world_all.dot" + " -o " + "world_all.png", shell=True)
+        call("dot -Tpdf " + "world_all.gv" + " -o " + "world_all.pdf", shell=True)
 
     infile.close()
     print "Number of constraints: ", numOfCons
