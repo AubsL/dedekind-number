@@ -22,6 +22,7 @@
 
 
 import sys
+import os
 
 def is_power2(num):
     return num != 0 and ((num & (num - 1)) == 0)
@@ -31,6 +32,7 @@ numOfNodes = 2**n
 nodes = []
 edges = []
 ups = []
+aspdir = os.path.join("", "asp")
 
 for i in range(numOfNodes):
     nodes.append(i)
@@ -45,7 +47,7 @@ for edge in edges:
     tmp = "up(" + edge[1].__str__() + "," + edge[0].__str__() + ")"
     ups.append(tmp)
 
-f = open("up.dlv","w")
+f = open(aspdir + "/up.dlv","w")
 f.write("{")
 for up in ups:
     f.write(up)

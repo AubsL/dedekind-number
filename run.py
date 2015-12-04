@@ -10,15 +10,23 @@
 from __future__ import division
 from subprocess import call
 import argparse
+import os
 
 def main(args):    
     if args.inputN is None:
         print 'You should specify the number of constraints by -n, use "python run.py -h" for help'
         return None
     
+    # define the folders
+    aspdir = os.path.join("", "asp")
+    vizdir = os.path.join("", "viz")
+    srcdir = os.path.join("", "src")
+    
+    
+    
     # experate all pws
     numOfCons = args.inputN
-    fIn = open("expWorlds.asp","w")
+    fIn = open(aspdir + "/expWorlds.asp","w")
     fIn.write("% Define the domain (universe of discourse): 1,2,...\n")
     fIn.write("u(1.."+numOfCons+").\n")
     fIn.write("% every element is either in or out\n")
@@ -27,9 +35,9 @@ def main(args):
     fIn.close()
     
     # Save all worlds
-    call("dlv -silent -filter=i,o expWorlds.asp > expWorlds.asp.out", shell=True)
-    fIn = open("expWorlds.asp.out", "r")
-    fOut = open("expWorlds_aw.asp", "w")
+    call("dlv -silent -filter=i,o " + aspdir + "/expWorlds.asp > " + aspdir + "/expWorlds.asp.out", shell=True)
+    fIn = open(aspdir + "/expWorlds.asp.out", "r")
+    fOut = open(aspdir + "/expWorlds_aw.asp", "w")
     outList = []
     not_EOF = True
     line = fIn.readline()
@@ -58,14 +66,14 @@ def main(args):
     fIn.close()
     fOut.close()    
     
-    call("dlv -silent -filter=r,g "+ "expWorlds_aw.asp" + " wexp-colors.asp" + " > " + "expWorlds_colors.asp", shell=True)
+    call("dlv -silent -filter=r,g "+ aspdir + "/expWorlds_aw.asp " + aspdir + "/wexp-colors.asp" + " > " + aspdir + "/expWorlds_colors.asp", shell=True)
     #call("dlv -silent -filter=up "+ "expWorlds_aw.asp" + " wexp-up.asp" + " > " + "expWorlds_up.asp", shell=True)
-    call("python powerset.py " + numOfCons, shell=True)
+    call("python " + srcdir + "/powerset.py " + numOfCons, shell=True)
     
     # generate all lattice
     edges = ""
     #fIn = open("expWorlds_up.asp")
-    fIn = open("up.dlv")
+    fIn = open(aspdir + "/up.dlv")
     line = fIn.readline()
     fIn.close()
     ups = line[1:-1].split(", ")
@@ -75,16 +83,16 @@ def main(args):
     
     color = { "r":"#FF0000", "g":"#00FF00" } 
     
-    infile = open("expWorlds_colors.asp", "r")
+    infile = open(aspdir + "/expWorlds_colors.asp", "r")
     if args.showlat:
-        fAll = open("world_all.gv", "w")
+        fAll = open(vizdir + "/world_all.gv", "w")
         fAll.write('digraph{\nrankdir=BT\nnode[shape=circle,style=filled,label=""]\nedge[dir=none]\n')
     
     i = 0
     rcnt = []
     for line in infile:
         if args.showlat:
-            outfile = open("world_"+str(i)+".gv", "w")
+            outfile = open(vizdir + "/world_"+str(i)+".gv", "w")
             outfile.write('digraph{\nrankdir=BT\nnode[shape=circle,style=filled,label=""]\nedge[dir=none]\n')
         preds = line[1:-2].split(", ")
         if len(rcnt) == 0:
@@ -100,7 +108,7 @@ def main(args):
         if args.showlat:
             outfile.write(edges + "}")
             outfile.close()
-            call("dot -Tpdf " + "world_"+str(i)+".gv" + " -o " + "world_"+str(i)+".pdf", shell=True)
+            call("dot -Tpdf " + vizdir + "/world_"+str(i)+".gv" + " -o " + vizdir + "/world_"+str(i)+".pdf", shell=True)
         i = i + 1
     
     if args.showlat:
@@ -114,7 +122,7 @@ def main(args):
                 fAll.write(str(e) + "[label=\"green "+ "%.2f"%(100-ratio) +"%\",color=green]\n")
         fAll.write(edges + "}")
         fAll.close()
-        call("dot -Tpdf " + "world_all.gv" + " -o " + "world_all.pdf", shell=True)
+        call("dot -Tpdf " + vizdir + "/world_all.gv" + " -o " + vizdir + "/world_all.pdf", shell=True)
 
     infile.close()
     print "Number of constraints: ", numOfCons
